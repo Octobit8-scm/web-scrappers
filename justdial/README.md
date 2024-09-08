@@ -43,3 +43,47 @@ The main functionality of the script includes:
 4. Error Handling:
 - The script uses try-except blocks to handle exceptions such as missing elements, timeouts, and WebDriver issues.
 - A custom logger is used to log information, warnings, and errors in the process to logs/justdial.log.
+
+5. Saving Data to CSV:
+- The extracted business details are stored in a CSV file named after the business category and location.
+- If no listings are found, no file is generated.
+
+## Code Breakdown
+get_listing_details(item):
+- Extracts details like business name, phone number, rating, and address from each listing. It ensures that if any element is missing, it logs the issue and continues the process.
+
+main():
+The main driver function that:
+  - Collects user input
+  - Initializes the web driver
+  - Navigates to the Justdial URL
+  - Handles scrolling and pagination to load more listings
+  - Extracts the business details for each listing
+  - Saves the data to a CSV file
+    
+## Output
+- CSV File:
+The output is a CSV file containing the scraped business data, which is saved in the following format:
+    <business_category>_results_<location>.csv
+Example: If you search for "Banquet Halls" in "Bangalore," the file will be named Banquet_Halls_results_Bangalore.csv.
+
+- Columns in the CSV File: The CSV file includes the following columns:
+    - Name: The name of the business.
+    - Phone: The contact number or "Not directly available" if it is not found.
+    - Rating: The business rating, or "N/A" if it is unavailable.
+    - Rating Count: The number of people who rated the business.
+    - Address: The address of the business.
+
+## Example Usage
+1. Run the Script:
+     python justdial_scraper.py
+
+2. Provide User Inputs:
+    - Enter the location: e.g., Bangalore
+    - Enter the business category: e.g., Banquet Halls
+      
+3. Extracted Data:
+The scraper will fetch and store the business listings in a CSV file located in the same directory as the script.
+
+
+
