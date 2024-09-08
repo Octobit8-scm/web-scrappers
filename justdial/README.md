@@ -49,11 +49,11 @@ The main functionality of the script includes:
 - If no listings are found, no file is generated.
 
 ## Code Breakdown
-get_listing_details(item):
-- Extracts details like business name, phone number, rating, and address from each listing. It ensures that if any element is missing, it logs the issue and continues the process.
+- get_listing_details(item):
+    - Extracts details like business name, phone number, rating, and address from each listing. It ensures that if any element is missing, it logs the issue and continues the process.
 
 main():
-The main driver function that:
+- The main driver function that:
   - Collects user input
   - Initializes the web driver
   - Navigates to the Justdial URL
@@ -63,9 +63,9 @@ The main driver function that:
     
 ## Output
 - CSV File:
-The output is a CSV file containing the scraped business data, which is saved in the following format:
-    <business_category>_results_<location>.csv
-Example: If you search for "Banquet Halls" in "Bangalore," the file will be named Banquet_Halls_results_Bangalore.csv.
+   - The output is a CSV file containing the scraped business data, which is saved in the following format:
+       -  <business_category>_results_<location>.csv
+   - Example: If you search for "Banquet Halls" in "Bangalore," the file will be named Banquet_Halls_results_Bangalore.csv.
 
 - Columns in the CSV File: The CSV file includes the following columns:
     - Name: The name of the business.
@@ -76,14 +76,14 @@ Example: If you search for "Banquet Halls" in "Bangalore," the file will be name
 
 ## Example Usage
 1. Run the Script:
-     python justdial_scraper.py
+   - python justdial_scraper.py
 
 2. Provide User Inputs:
     - Enter the location: e.g., Bangalore
     - Enter the business category: e.g., Banquet Halls
       
 3. Extracted Data:
-The scraper will fetch and store the business listings in a CSV file located in the same directory as the script.
+   - The scraper will fetch and store the business listings in a CSV file located in the same directory as the script.
 
 
 
