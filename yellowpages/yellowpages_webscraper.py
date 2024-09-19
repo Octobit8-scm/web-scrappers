@@ -1,3 +1,4 @@
+# import libraries
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
@@ -45,8 +46,9 @@ def get_data(page_url):
             street_address = item.find('div', class_='street-address').text if item.find('div', class_='street-address') else 'N/A'
             locality = item.find('div', class_='locality').text if item.find('div', class_='locality') else 'N/A'
             phone = item.find('div', class_='phones phone primary').text if item.find('div', class_='phones phone primary') else 'N/A'
+            website = item.find('a', class_='track-visit-website')['href'] if item.find('a', class_='track-visit-website') else 'N/A'
 
-            business = {'name': name, 'street_address': street_address, 'locality': locality, 'phone': phone}
+            business = {'Name': name, 'Street_address': street_address, 'Locality': locality, 'Phone': phone, 'Website': website}
             main_list.append(business)
         logger.info("Successfully scraped data")
 
