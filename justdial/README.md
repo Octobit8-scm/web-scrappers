@@ -23,11 +23,11 @@ This Python script is a web scraper designed to extract business listings from t
 
 ## Functionality Overview
 The main functionality of the script includes:
-1. User Input:
+### 1. User Input:
 - The user is prompted to enter a location and a business category (e.g., "Bangalore" and "Banquet Halls").
 - The inputs are used to construct the search URL for the Justdial website.
 
-2. Web Scraping Process:
+### 2. Web Scraping Process:
 - The script uses Selenium with a headless Chrome browser to interact with the Justdial website.
 - It navigates to the constructed URL, waits for the page content to load, and retrieves the business listings.
 - Using BeautifulSoup, it parses the page's HTML source to extract key business details:
@@ -36,17 +36,26 @@ The main functionality of the script includes:
      - Rating and rating count
      - Address
  
-3. Scrolling to Load More Data:
+### 3. Scrolling to Load More Data:
 - Since Justdial listings are dynamically loaded as you scroll, the script scrolls the page repeatedly to load more results.
 - The page height is monitored to determine when there is no more content to load.
 
-4. Error Handling:
+### 4. Error Handling:
 - The script uses try-except blocks to handle exceptions such as missing elements, timeouts, and WebDriver issues.
 - A custom logger is used to log information, warnings, and errors in the process to logs/justdial.log.
 
-5. Saving Data to CSV:
+### 5. Saving Data to CSV:
 - The extracted business details are stored in a CSV file named after the business category and location.
 - If no listings are found, no file is generated.
+
+### 6. Phone Number Retrieval Issue:
+- Currently, the script attempts to handle phone numbers hidden behind a "Show Number" button. However, this functionality is not working as expected due to issues with the button interaction and page structure changes.
+
+## Known Issues:
+### 1) Phone Number Extraction:
+ - The "Show Number" functionality on Justdial is currently facing issues. The script is unable to click the button and reveal hidden phone numbers, so in cases where the number is hidden, "Not directly available" is returned.
+### 2) Data Limitation:
+ - The script is able to reliably extract up to 10 listings per search category in different cities.
 
 ## Code Breakdown
 - get_listing_details(item):
@@ -75,14 +84,14 @@ main():
     - Address: The address of the business.
 
 ## Example Usage
-1. Run the Script:
+### 1. Run the Script:
    - python justdial_scraper.py
 
-2. Provide User Inputs:
+### 2. Provide User Inputs:
     - Enter the location: e.g., Bangalore
     - Enter the business category: e.g., Banquet Halls
       
-3. Extracted Data:
+### 3. Extracted Data:
    - The scraper will fetch and store the business listings in a CSV file located in the same directory as the script.
 
 
