@@ -10,20 +10,55 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from justdial_logger import setup_logger
+import time
+import random
 
 # Set up the logger using the custom logger module
 logger = setup_logger(log_file='logs/justdial.log')
 
 
-def get_listing_details(item):
+# Wait with polling for dynamic loading times
+def wait_for_element(driver, locator, timeout=40, poll_frequency=0.5):
+    try:
+        # Use WebDriverWait with a dynamic polling interval
+        return WebDriverWait(driver, timeout, poll_frequency=poll_frequency).until(
+            EC.presence_of_element_located(locator)
+        )
+    except TimeoutException as e:
+        logger.error(f"Timeout occurred while waiting for element {locator}: {e}")
+        return None
+
+
+def get_listing_details(item, driver):
     try:
         # Extract business name
-        business_name = item.find('div', {'class': 'resultbox_title_anchor'}).text.strip() if item.find('div', {
-            'class': 'resultbox_title_anchor'}) else 'N/A'
+        business_name = item.find('div', {'class': 'resultbox_title_anchor'}).text.strip() if item.find('div', {'class': 'resultbox_title_anchor'}) else 'N/A'
 
-        # Extract call number details
-        call_button_element = item.find('span', class_='jsx-5a783115a9ece035 callcontent callNowAnchor')
-        phone_number = call_button_element.text.strip() if call_button_element else "Not directly available"
+        # Initialize phone_number as 'Not available'
+        phone_number = "Not directly available"
+
+        # First check if the phone number is directly visible
+        try:
+            # Check for the directly visible phone number
+            direct_phone_number_element = item.find('span', class_='jsx-5a783115a9ece035 callcontent callNowAnchor')
+            if direct_phone_number_element:
+                # Phone number is directly visible, extract it
+                phone_number = direct_phone_number_element.text.strip() if direct_phone_number_element else "Not available"
+            else:
+                # Phone number is not directly visible, try clicking the "Show Number" button
+                show_number_button = item.find('div', class_='jsx-e7ac8b9f6f6eb50f button_flare"')
+                if show_number_button:
+                    # Click the "Show Number" button using JavaScript
+                    driver.execute_script("arguments[0].click();", show_number_button)
+
+                    # Wait for the number to be revealed using the new wait_for_element function
+                    phone_number_element = wait_for_element(driver, (By.CLASS_NAME, 'jsx-d17cc062da6c7a17 color111'),
+                                                            timeout=30)
+                    if phone_number_element:
+                        phone_number_link = phone_number_element.find_element(By.TAG_NAME, 'a')
+                        phone_number = phone_number_link.get_attribute('href').replace('tel:', '').strip()
+        except Exception as e:
+            logger.error(f"Error while handling phone number extraction: {e}")
 
         # Extract ratings
         ratings = item.find('div', class_='resultbox_totalrate').text.strip() if item.find('div',
@@ -84,12 +119,11 @@ def main():
         logger.info(f"Accessing URL: {url}")
         driver.get(url)
 
-        try:
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, 'resultbox_textbox'))
-            )
-        except TimeoutException:
-            logger.error("Loading took too much time!")
+        # Use the new wait_for_element function for waiting on listings
+        listings_loaded = wait_for_element(driver, (By.CLASS_NAME, 'resultbox_textbox'), timeout=30)
+        if not listings_loaded:
+            logger.error("Loading took too much time! Logging the page source for inspection.")
+
             return
 
         records = []
@@ -100,7 +134,7 @@ def main():
             listings = soup.find_all('div', class_='resultbox_textbox')
 
             for item in listings:
-                record = get_listing_details(item)
+                record = get_listing_details(item, driver)
                 if record:
                     records.append(record)
 
@@ -116,14 +150,14 @@ def main():
             while i <= max_scrolls:
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-                # Wait for new listings to load after scrolling
-                try:
-                    WebDriverWait(driver, 20).until(
-                        EC.presence_of_all_elements_located((By.CLASS_NAME, 'resultbox_textbox'))
-                    )
-                except TimeoutException:
+                # Wait for a random amount of time before the next scroll
+                time.sleep(random.uniform(5, 8))
+
+                # Wait for more listings using the wait_for_element function
+                more_listings = wait_for_element(driver, (By.CLASS_NAME, 'resultbox_textbox'), timeout=30)
+                if not more_listings:
                     logger.error("Timeout while waiting for listings to load.")
-                    break  # Exit the loop if listings didn't load in time
+                    break
 
                 # Check if the page height changes
                 new_height = driver.execute_script("return document.body.scrollHeight")
